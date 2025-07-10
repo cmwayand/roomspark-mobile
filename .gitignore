@@ -1,2 +1,16 @@
 node_modules
 .env
+
+# Large files and archives
+*.zip
+*.tar.gz
+*.rar
+
+# iOS build artifacts
+mobile/ios/Pods/
+mobile/ios/build/
+mobile/ios/DerivedData/
+
+# Android build artifacts
+mobile/android/build/
+mobile/android/app/build/
