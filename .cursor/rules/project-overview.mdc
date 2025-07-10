@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Information about the project is located in PROJECT_OVERVIEW.md. Make sure to update it whenever you make significant changes like:
+1. Adding a new endpoint
+2. Using a major new technology/package
+3. Use a new service to connect to
+
+
+Make sure the description is breif and to the point. If the prompt needs more context, it will get it from the code.
+
+When adding new code, try not to add useless comments. No need to describe something that the code easily describes.
+
+For example, this comment isn't needed:
+```
+// Convert product links to affiliate links
+const productsWithAffiliateLinks =
+    affiliateService.convertProductLinks(processedProducts);
+```
