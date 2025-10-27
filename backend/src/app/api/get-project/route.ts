@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "../../../lib/supabase";
-import { getAuth } from "@clerk/nextjs/server";
+import { createServerSupabaseClient } from "@/src/lib/supabase-server";
 import { GetProjectDetailsResponse } from "@roomspark/shared";
 import { ProjectImage, Product } from "@roomspark/shared/src/types/objects";
+import { getUserIdFromRequest } from "@/src/utils/auth";
 
 export async function GET(request: NextRequest) {
   try {
     // Check if the user is authenticated via Clerk
-    const auth = getAuth(request);
-    const { userId } = auth;
+    let userId: string;
+    userId = getUserIdFromRequest(request);
 
     if (!userId) {
       return NextResponse.json(
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = createServerSupabaseClient(request);
+    const supabase = createServerSupabaseClient();
 
     // Get the project and verify ownership
     const { data: project, error: projectError } = await supabase

@@ -21,7 +21,9 @@ type Project = NonNullable<GetProjectsResponse['projects']>[0];
 export default function ProjectListPage() {
   const router = useRouter();
 
-  const { data, isLoading, error } = useApiQuery<GetProjectsResponse>('/api/get-projects');
+  const { data, isLoading, error } = useApiQuery<GetProjectsResponse>('/api/get-projects', {
+    withAuth: true,
+  });
 
   useFocusRefetch();
 

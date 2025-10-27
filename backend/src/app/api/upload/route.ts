@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "../../../lib/supabase";
+import { createServerSupabaseClient } from "@/src/lib/supabase-server";
 import { v4 as uuidv4 } from "uuid";
 import { ImageProcessor } from "../../../utils/imageProcessor";
-import { getAuth } from "@clerk/nextjs/server";
 import { UploadResponse } from "@roomspark/shared";
+import { getUserIdFromRequest } from "@/src/utils/auth";
 
 // 20MB in bytes
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
@@ -11,8 +11,8 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024;
 export async function POST(request: NextRequest) {
   try {
     // Check if the user is authenticated via Clerk
-    const auth = getAuth(request);
-    const { userId } = auth;
+    let userId: string;
+    userId = getUserIdFromRequest(request);
 
     if (!userId) {
       return NextResponse.json(
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     const filePath = `photos/${uniqueFileName}`;
 
     // Initialize Supabase client
-    const supabase = createServerSupabaseClient(request);
+    const supabase = createServerSupabaseClient();
 
     // Verify the project belongs to the user
     const { data: project, error: projectError } = await supabase
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     //TODO use new upload service for this....
     // Upload processed file to Supabase storage
     const { data: storageData, error: storageError } = await supabase.storage
-      .from("user-uploads")
+      .from("user_uploads")
       .upload(filePath, processedImage.buffer, {
         contentType: "image/png",
       });
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
 
     // Get public URL for the uploaded file
     const { data: urlData, error: signedUrlError } = await supabase.storage
-      .from("user-uploads")
+      .from("user_uploads")
       .createSignedUrl(filePath, 60 * 60 * 24 * 365 * 100); // 100 years expiry
 
     if (signedUrlError) {

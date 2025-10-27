@@ -1,27 +1,27 @@
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { getAuth } from "@clerk/nextjs/server";
-import { createServerSupabaseClient } from "../../../lib/supabase";
+import { createServerSupabaseClient } from "@/src/lib/supabase-server";
 import { GetProjectsResponse } from "@roomspark/shared";
 import { Project } from "@roomspark/shared/src/types/objects";
+import { getUserIdFromRequest } from "@/src/utils/auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerSupabaseClient(request);
+    const supabase = createServerSupabaseClient();
 
-    // Get the current user from Clerk
-    const auth = getAuth(request);
-    const { userId } = auth;
-
-    if (!userId) {
+    let userId: string;
+    try {
+      userId = getUserIdFromRequest(request);
+    } catch (authError: any) {
+      console.error("🔐 GET-PROJECTS - Auth error:", authError);
       return NextResponse.json(
-        { status: "error", error: "Unauthorized" } as GetProjectsResponse,
+        {
+          status: "error",
+          error: "Unauthorized: " + authError.message,
+        } as GetProjectsResponse,
         { status: 401 }
       );
     }
 
-    // Get all projects for the user
     const { data: projects, error: projectsError } = await supabase
       .from("user_projects")
       .select("*")
@@ -39,6 +39,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (!projects || projects.length === 0) {
+      return NextResponse.json(
+        {
+          status: "success",
+          projects: [],
+        } as GetProjectsResponse,
+        { status: 200 }
+      );
+    }
+
+    // Get generated images for these projects
     const { data: generatedImages, error: generatedImagesError } =
       await supabase
         .from("user_generated")
@@ -60,6 +71,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Create a map of project_id to images
     const generatedImagesMap = new Map<string, any[]>();
     generatedImages?.forEach((image) => {
       if (!image.project_id) {
@@ -71,6 +83,7 @@ export async function GET(request: NextRequest) {
       generatedImagesMap.get(image.project_id)?.push(image);
     });
 
+    // Format the projects with their images
     const formattedProjects: Project[] = projects.map((project) => ({
       id: project.id,
       name: project.name ?? "",
@@ -95,4 +108,15 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
 }

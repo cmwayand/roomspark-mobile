@@ -1,18 +1,14 @@
-import { getAuth } from "@clerk/nextjs/server";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "../../../lib/supabase";
+import { createServerSupabaseClient } from "@/src/lib/supabase-server";
 import { CreateProjectResponse } from "@roomspark/shared";
 import { Project } from "@roomspark/shared/src/types/objects";
+import { getUserIdFromRequest } from "@/src/utils/auth";
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerSupabaseClient(request);
-
-    // Check if the user is authenticated via Clerk
-    const auth = getAuth(request);
-    const { userId } = auth;
+    const supabase = createServerSupabaseClient();
+    let userId: string;
+    userId = getUserIdFromRequest(request);
 
     if (!userId) {
       return NextResponse.json(
@@ -85,4 +81,15 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
 }

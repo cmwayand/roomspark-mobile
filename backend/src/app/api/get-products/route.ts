@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuth } from "@clerk/nextjs/server";
 import { ServiceFactory } from "@/src/factories/serviceFactory";
 import { AffiliateService } from "@/src/services/affiliate/affiliateService";
 import { ProductProcessorService } from "@/src/services/products/productProcessorService";
-import { createServerSupabaseClient } from "../../../lib/supabase";
+import { createServerSupabaseClient } from "@/src/lib/supabase-server";
 import { GetProductsResponse } from "@roomspark/shared";
+import { getUserIdFromRequest } from "@/src/utils/auth";
 
 // Initialize the affiliate service
 const affiliateService = new AffiliateService({
@@ -19,11 +19,13 @@ const productProcessorService = new ProductProcessorService({
   titleCleaning: true,
 });
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Check if the user is authenticated via Clerk
-    const auth = getAuth(request);
-    const { userId } = auth;
+
+    // Get the current user from JWT token
+    let userId: string;
+    userId = getUserIdFromRequest(request);
 
     if (!userId) {
       return NextResponse.json(
@@ -57,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize Supabase client
-    const supabase = createServerSupabaseClient(request);
+    const supabase = createServerSupabaseClient();
 
     // Fetch the image URL from the database using the image ID
     const { data: generatedImage, error: fetchError } = await supabase

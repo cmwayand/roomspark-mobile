@@ -14,3 +14,8 @@ mobile/ios/DerivedData/
 # Android build artifacts
 mobile/android/build/
 mobile/android/app/build/
+
+.cursor
+configt
+.DS_Store
+.DS_Store

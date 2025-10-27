@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuth } from "@clerk/nextjs/server";
-import { createServerSupabaseClient } from "../../../lib/supabase";
+import { createServerSupabaseClient } from "@/src/lib/supabase-server";
 import { LikeProductResponse } from "@roomspark/shared";
+import { getUserIdFromRequest } from "@/src/utils/auth";
 
 export async function POST(request: NextRequest) {
   try {
     // Check if the user is authenticated via Clerk
-    const auth = getAuth(request);
-    const { userId } = auth;
+    let userId: string;
+    userId = getUserIdFromRequest(request);
 
     if (!userId) {
       return NextResponse.json(
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize Supabase client
-    const supabase = createServerSupabaseClient(request);
+    const supabase = createServerSupabaseClient();
 
     // First check if the product exists and belongs to the user
     const { data: existingProduct, error: fetchError } = await supabase

@@ -26,7 +26,7 @@ export class SupabaseStorageService implements ImageStorageService {
         folderName = "generated-images";
         break;
       case ImageType.USER_UPLOADED:
-        folderName = "user-uploads";
+        folderName = "user_uploads";
         break;
       default:
         throw new Error(`Invalid image type: ${imageType}`);
@@ -38,7 +38,7 @@ export class SupabaseStorageService implements ImageStorageService {
 
     const { data: storageData, error: storageError } =
       await this.supabase.storage
-        .from("user-uploads")
+        .from("user_uploads")
         .upload(filePath, imageBuffer, {
           contentType: "image/png",
         });
@@ -50,7 +50,7 @@ export class SupabaseStorageService implements ImageStorageService {
     }
 
     const { data: urlData, error: urlError } = await this.supabase.storage
-      .from("user-uploads")
+      .from("user_uploads")
       .createSignedUrl(filePath, 60 * 60 * 24 * 365 * 100); // 100 years expiry
 
     if (urlError) {

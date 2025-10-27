@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuth } from "@clerk/nextjs/server";
-import { createServerSupabaseClient } from "../../../lib/supabase";
+import { createServerSupabaseClient } from "@/src/lib/supabase-server";
 import { GetLikedProductsResponse } from "@roomspark/shared";
 import { Product } from "@roomspark/shared/src/types/objects";
+import { getUserIdFromRequest } from "@/src/utils/auth";
 
 export async function GET(request: NextRequest) {
   try {
     // Check if the user is authenticated via Clerk
-    const auth = getAuth(request);
-    const { userId } = auth;
+    let userId: string;
+    userId = getUserIdFromRequest(request);
 
     if (!userId) {
       return NextResponse.json(
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Initialize Supabase client
-    const supabase = createServerSupabaseClient(request);
+    const supabase = createServerSupabaseClient();
 
     // Fetch all liked products for the current user
     const { data: likedProducts, error: fetchError } = await supabase
