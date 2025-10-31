@@ -44,6 +44,10 @@ export default function Page() {
     }
   };
 
+  const handleResetPasswordPress = () => {
+    router.replace('/reset-password');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
@@ -74,7 +78,7 @@ export default function Page() {
           <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.forgotPasswordContainer}>
+        <TouchableOpacity style={styles.forgotPasswordContainer} onPress={handleResetPasswordPress}>
           <Text style={styles.forgotPasswordText}>Forgot password?</Text>
         </TouchableOpacity>
       </View>
