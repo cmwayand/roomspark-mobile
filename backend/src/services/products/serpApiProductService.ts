@@ -162,7 +162,7 @@ export class SerpApiProductService implements ProductService {
           continue;
         }
 
-        const products = response.organic_results.map((item) => {
+        const products: Product[] = response.organic_results.map((item) => {
           return {
             id: randomUUID(),
             createdAt: new Date().toISOString(),
@@ -174,8 +174,10 @@ export class SerpApiProductService implements ProductService {
             inStock: true,
             isAffiliate: false,
             liked: false,
-            priceCurrency: item.price ? "USD" : "",
-            priceValue: item.extracted_price || "",
+            price: {
+              value: item.extracted_price || "",
+              currency: item.price ? "USD" : "",
+            },
             projectId: projectId,
             userId: userId,
             page: 1,
