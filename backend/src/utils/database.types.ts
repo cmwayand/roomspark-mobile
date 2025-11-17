@@ -17,6 +17,7 @@ export type Database = {
           file_size: number
           file_type: string
           file_url: string
+          interior_description: string
           id: string
           project_id: string
           source: string | null
@@ -29,6 +30,7 @@ export type Database = {
           file_size?: number
           file_type?: string
           file_url?: string
+          interior_description?: string
           id?: string
           project_id: string
           source?: string | null
@@ -41,6 +43,7 @@ export type Database = {
           file_size?: number
           file_type?: string
           file_url?: string
+          interior_description?: string
           id?: string
           project_id?: string
           source?: string | null
@@ -144,6 +147,7 @@ export type Database = {
           file_size: number
           file_type: string
           file_url: string
+          interior_description: string
           id: string
           project_id: string
           user_id: string
@@ -155,6 +159,7 @@ export type Database = {
           file_size?: number
           file_type?: string
           file_url?: string
+          interior_description?: string
           id?: string
           project_id: string
           user_id?: string
@@ -166,6 +171,7 @@ export type Database = {
           file_size?: number
           file_type?: string
           file_url?: string
+          interior_description?: string
           id?: string
           project_id?: string
           user_id?: string

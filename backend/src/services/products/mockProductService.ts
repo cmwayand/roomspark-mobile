@@ -3,6 +3,13 @@ import { Product } from "@roomspark/shared/src/types/objects";
 import { randomUUID } from "crypto";
 
 export class MockProductService implements ProductService {
+  getProductsByAmazonSearch(
+    description: string[],
+    projectId: string,
+    userId: string
+  ): Promise<Product[]> {
+    throw new Error("Method not implemented.");
+  }
   async getProductsFromImage(imageUrl: string): Promise<Product[]> {
     // Simulate processing delay
     await new Promise((resolve) => setTimeout(resolve, 800));

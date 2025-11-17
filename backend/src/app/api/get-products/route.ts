@@ -19,7 +19,7 @@ const productProcessorService = new ProductProcessorService({
   titleCleaning: true,
 });
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Check if the user is authenticated via Clerk
 
@@ -62,15 +62,19 @@ export async function GET(request: NextRequest) {
     const supabase = createServerSupabaseClient();
 
     // Fetch the image URL from the database using the image ID
-    const { data: generatedImage, error: fetchError } = await supabase
+    const { data: interiorDescriptions, error: fetchError } = await supabase
       .from("user_generated")
-      .select("file_url")
+      .select("interior_description")
       .eq("id", imageId)
       .eq("project_id", projectId)
       .eq("user_id", userId) // Ensure the image belongs to the user
       .single();
 
-    if (fetchError || !generatedImage) {
+    if (
+      fetchError ||
+      !interiorDescriptions?.interior_description?.length ||
+      !Array(interiorDescriptions?.interior_description)?.length
+    ) {
       return NextResponse.json(
         {
           status: "error",
@@ -80,10 +84,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const imageUrl = generatedImage.file_url;
     const productService = ServiceFactory.getProductService();
 
-    const products = await productService.getProductsFromImage(imageUrl);
+    const products = await productService.getProductsByAmazonSearch(
+      interiorDescriptions.interior_description as unknown as string[],
+      projectId,
+      userId
+    );
     const productsWithAffiliateLinks =
       affiliateService.convertProductLinks(products);
     const processedProducts = productProcessorService.processProducts(
@@ -132,4 +139,15 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
 }

@@ -18,7 +18,8 @@ export class SupabaseStorageService implements ImageStorageService {
     userId: string,
     projectId: string,
     source: string,
-    imageType: ImageType
+    imageType: ImageType,
+    description: string[]
   ): Promise<StoredImage> {
     let folderName = "";
     switch (imageType) {
@@ -80,6 +81,7 @@ export class SupabaseStorageService implements ImageStorageService {
           file_type: "image/png",
           file_size: imageBuffer.length,
           source: source,
+          interior_description: description,
           blur_hash: (imageBuffer as any).blurhash, // Type assertion since we know it's coming from our ImageProcessor
         },
       ])
@@ -102,7 +104,8 @@ export class SupabaseStorageService implements ImageStorageService {
     userId: string,
     projectId: string,
     source: string,
-    imageType: ImageType
+    imageType: ImageType,
+    description: string[]
   ): Promise<StoredImage> {
     const response = await fetch(imageUrl);
     if (!response.ok) {
@@ -114,6 +117,13 @@ export class SupabaseStorageService implements ImageStorageService {
     const buffer = new Uint8Array(arrayBuffer);
 
     // Use the storeImage method to handle the upload
-    return this.storeImage(buffer, userId, projectId, source, imageType);
+    return this.storeImage(
+      buffer,
+      userId,
+      projectId,
+      source,
+      imageType,
+      description
+    );
   }
 }

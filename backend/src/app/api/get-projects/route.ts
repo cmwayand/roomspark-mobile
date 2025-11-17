@@ -77,17 +77,18 @@ export async function GET(request: NextRequest) {
       if (!image.project_id) {
         return;
       }
-      if (!generatedImagesMap.has(image.project_id)) {
-        generatedImagesMap.set(image.project_id, []);
+      if (!generatedImagesMap.has(image.project_id?.toString())) {
+        generatedImagesMap.set(image.project_id?.toString(), []);
       }
-      generatedImagesMap.get(image.project_id)?.push(image);
+      generatedImagesMap.get(image.project_id?.toString())?.push(image);
     });
 
     // Format the projects with their images
     const formattedProjects: Project[] = projects.map((project) => ({
       id: project.id,
       name: project.name ?? "",
-      image: generatedImagesMap.get(project.id)?.[0]?.file_url ?? "",
+      image:
+        generatedImagesMap.get(project.id?.toString())?.[0]?.file_url ?? "",
       created_at: project.created_at,
     }));
 

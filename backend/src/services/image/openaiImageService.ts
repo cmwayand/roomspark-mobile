@@ -5,6 +5,7 @@ import {
 } from "../../interfaces/imageGeneration";
 import { ImageStorageService, ImageType } from "../../interfaces/storage";
 import OpenAI from "openai";
+import retry from "async-retry";
 
 class NodeFileLike {
   constructor(
@@ -63,6 +64,9 @@ class NodeFileLike {
   }
 }
 
+// Optional: type for the structured products we’ll return
+type GeneratedProductDescription = string;
+
 export class OpenAIImageService implements ImageGenerationService {
   private openai: OpenAI;
   private storageService: ImageStorageService;
@@ -109,14 +113,22 @@ export class OpenAIImageService implements ImageGenerationService {
         contentType
       );
 
-      const openaiResponse = await this.openai.images.edit({
-        model: "dall-e-2",
-        image: imageFile as any,
-        prompt: request.prompt,
-        n: 1,
-        size: "1024x1024",
-        response_format: "b64_json",
-      });
+      const openaiResponse = await retry(
+        async () => {
+          return await this.openai.images.edit({
+            model: "dall-e-2",
+            image: imageFile as any,
+            prompt: request.prompt,
+            n: 1,
+            size: "1024x1024",
+            response_format: "b64_json",
+          });
+        },
+        {
+          retries: 3,
+          minTimeout: 1000,
+        }
+      );
 
       if (
         !openaiResponse.data ||
@@ -132,37 +144,117 @@ export class OpenAIImageService implements ImageGenerationService {
       const generatedImageBase64 = openaiResponse.data[0].b64_json;
       const generatedImageBuffer = Buffer.from(generatedImageBase64, "base64");
 
+      let description: string[] = [];
+
+      try {
+        const descriptionResponse = await retry(
+          async () => {
+            return await this.openai.chat.completions.create({
+              model: "gpt-4.1",
+              response_format: { type: "json_object" },
+              messages: [
+                {
+                  role: "system",
+                  content:
+                    "You are an interior designer. Analyze the provided image and generate a list of furniture and decor items. These will be used as keywords for Amazon search.",
+                },
+                {
+                  role: "user",
+                  content: [
+                    {
+                      type: "text",
+                      text: `
+Return ONLY a JSON object with this shape:
+{
+  "description": ["Name Category Detailed description..."]
+}
+
+Rules:
+- Each item must be a SINGLE LINE string.
+- Format: "Name Category Description".
+- Description should include style, color, material, size cues.
+- Include 8–15 products.
+- No extra keys or text.
+              `.trim(),
+                    },
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: `data:image/png;base64,${generatedImageBase64}`,
+                      },
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+          {
+            retries: 3,
+            minTimeout: 1000,
+          }
+        );
+
+        const content =
+          descriptionResponse.choices[0]?.message?.content ?? "{}";
+        console.log(
+          descriptionResponse.choices[0],
+          "<-descriptionResponse.choices[0]"
+        );
+
+        const parsed = JSON.parse(content) as {
+          description?: GeneratedProductDescription[];
+        };
+
+        if (parsed.description && Array.isArray(parsed.description)) {
+          description = parsed.description;
+        }
+      } catch (descError) {
+        console.error(
+          "Failed to generate structured interior product descriptions:",
+          descError
+        );
+
+        description = [];
+      }
+
       const storedImageUrl = await this.storageService.storeImage(
         generatedImageBuffer,
         userId,
         projectId,
         "openai",
-        ImageType.GENERATED
+        ImageType.GENERATED,
+        description
       );
 
       return {
         success: true,
         imageUrl: storedImageUrl.url,
         imageId: storedImageUrl.id,
-      };
+        base64Image: generatedImageBase64,
+        description,
+      } as unknown as ImageGenerationResponse;
     } catch (error: any) {
-      console.error("❌ OpenAI image generation error:", error);
+      console.error("Error generating image:", error);
       return {
         success: false,
-        error: error.message || "Failed to generate image",
+        error:
+          error?.message ||
+          "An unexpected error occurred while generating image",
       };
     }
   }
 
   private getFileExtension(contentType: string): string {
-    const extensions: { [key: string]: string } = {
-      "image/png": "png",
-      "image/jpeg": "jpg",
-      "image/jpg": "jpg",
-      "image/webp": "webp",
-      "image/gif": "gif",
-    };
-
-    return extensions[contentType] || "png";
+    switch (contentType) {
+      case "image/jpeg":
+      case "image/jpg":
+        return "jpg";
+      case "image/png":
+        return "png";
+      case "image/webp":
+        return "webp";
+      default:
+        return "png";
+    }
   }
 }

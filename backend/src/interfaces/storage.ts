@@ -15,7 +15,8 @@ export interface ImageStorageService {
     userId: string,
     projectId: string,
     source: string,
-    imageType: ImageType
+    imageType: ImageType,
+    interiorDescription?: string[]
   ): Promise<StoredImage>;
 
   storeImageFromUrl(
@@ -23,6 +24,7 @@ export interface ImageStorageService {
     userId: string,
     projectId: string,
     source: string,
-    imageType: ImageType
+    imageType: ImageType,
+    interiorDescription?: string[]
   ): Promise<StoredImage>;
 }
