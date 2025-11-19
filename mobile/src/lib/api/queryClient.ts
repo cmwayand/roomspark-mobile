@@ -1,5 +1,4 @@
-import { QueryClient } from '@tanstack/react-query';
-import { focusManager } from '@tanstack/react-query';
+import { QueryClient, focusManager } from '@tanstack/react-query';
 import { AppState, Platform } from 'react-native';
 
 // Set up React Query focus manager for React Native

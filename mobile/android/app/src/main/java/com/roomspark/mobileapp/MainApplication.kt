@@ -1,4 +1,4 @@
-package com.anonymous.MobileApp
+package com.roomspark.mobileapp
 
 import android.app.Application
 import android.content.res.Configuration
