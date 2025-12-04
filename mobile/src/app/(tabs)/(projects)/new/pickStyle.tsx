@@ -35,12 +35,7 @@ export default function PickStylePage() {
               style={styles.styleButton}
               onPress={() => {
                 setStyle(style.id);
-                router.push({
-                  pathname: '/(tabs)/(projects)/[id]',
-                  params: {
-                    id: 'newProject',
-                  },
-                });
+                router.push('/new/pickRoom');
               }}
             >
               <Text style={styles.styleButtonText}>{style.name}</Text>

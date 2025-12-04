@@ -5,6 +5,7 @@ export default function NewProjectLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="pickStyle" />
+      <Stack.Screen name="pickRoom" />
     </Stack>
   );
 }
