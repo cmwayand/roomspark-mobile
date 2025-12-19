@@ -1,20 +1,20 @@
 import { create } from 'zustand';
+import { RoomType } from '@roomspark/shared';
+import type { RoomUsage } from '@roomspark/shared';
 
 interface ImageToUpload {
   uri: string;
 }
 
-export type RoomTypeForPrompt = 'bedroom' | 'living_room';
-
 interface NewProjectStore {
   imageToUpload: ImageToUpload;
   style: string;
-  roomType: RoomTypeForPrompt | '';
+  roomType: RoomUsage | null;
 
   reset: () => void;
   setImageToUpload: (imageToUpload: ImageToUpload) => void;
   setStyle: (style: string) => void;
-  setRoomType: (roomType: RoomTypeForPrompt) => void;
+  setRoomType: (roomType: RoomUsage) => void;
 }
 
 /** When creating a new project, we jump between a few different pages.
@@ -23,14 +23,14 @@ interface NewProjectStore {
  */
 export const useNewProjectStore = create<NewProjectStore>(set => ({
   imageToUpload: { uri: '' },
-  style: '',
-  roomType: '',
+  style: null,
+  roomType: null,
 
   reset: () =>
     set({
       imageToUpload: { uri: '' },
-      style: '',
-      roomType: '',
+      style: null,
+      roomType: null,
     }),
 
   setImageToUpload: (imageToUpload: ImageToUpload) =>
@@ -38,13 +38,10 @@ export const useNewProjectStore = create<NewProjectStore>(set => ({
       imageToUpload,
     }),
 
-  setStyle: (style: string) =>
+  setStyle: (style: RoomType) =>
     set({
       style,
     }),
 
-  setRoomType: (roomType: RoomTypeForPrompt) =>
-    set({
-      roomType,
-    }),
+  setRoomType: (roomType: RoomUsage) => set({ roomType }),
 }));

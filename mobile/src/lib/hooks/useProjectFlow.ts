@@ -7,8 +7,10 @@ import {
   GetProjectDetailsResponse,
   UploadResponse,
 } from '@roomspark/shared';
+import { useNewProjectStore } from '../state/newProjectStore';
 import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
+import type { RoomType, RoomUsage } from '@roomspark/shared';
 
 type LoadingState = {
   uploading: boolean;
@@ -36,6 +38,7 @@ export function useProjectFlow(projectId: string) {
     []
   );
 
+  const { style, roomType } = useNewProjectStore();
   const [project, setProject] = useState<ProjectFlowData>(emptyProject);
   const [loading, setLoading] = useState<LoadingState>({
     uploading: false,
@@ -178,7 +181,9 @@ export function useProjectFlow(projectId: string) {
   const generateImage = useCallback(
     async (
       originalImageId: string,
-      projectId: string
+      projectId: string,
+      roomType?: RoomType,
+      roomUsage?: RoomUsage
     ): Promise<GenerateImageResponse | undefined> => {
       try {
         updateLoading({ generating: true });
@@ -187,6 +192,8 @@ export function useProjectFlow(projectId: string) {
         const result = await generateImageMutation.mutateAsync({
           imageId: originalImageId,
           projectId,
+          roomType,
+          roomUsage,
         });
 
         // Only update state if we have a valid imageId
@@ -286,7 +293,12 @@ export function useProjectFlow(projectId: string) {
 
         // Step 3: Generate image
         console.log('Generating image');
-        const generateImageResponse = await generateImage(uploadedImageId, newProject.project.id);
+        const generateImageResponse = await generateImage(
+          uploadedImageId,
+          newProject.project.id,
+          style,
+          roomType
+        );
         if (!generateImageResponse?.imageId) {
           return;
         }

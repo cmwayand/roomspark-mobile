@@ -34,6 +34,7 @@ export default function PickStylePage() {
               key={style.id}
               style={styles.styleButton}
               onPress={() => {
+                console.log('style: ', style);
                 setStyle(style.id);
                 router.push('/new/pickRoom');
               }}
