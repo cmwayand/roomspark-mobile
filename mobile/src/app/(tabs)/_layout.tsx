@@ -26,7 +26,7 @@ export default function AppLayout() {
   };
 
   const handleOverLimit = () => {
-    showToast({ message: 'You have exceeded the limit!!!', type: 'info' });
+    showToast({ message: 'Looks like you’ve hit your project limit for now.', type: 'info' });
   };
 
   return (
