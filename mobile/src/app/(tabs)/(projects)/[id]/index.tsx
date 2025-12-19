@@ -101,6 +101,9 @@ export default function ProjectPage() {
     return (
       <>
         <View style={styles.imageContainer}>{renderImage()}</View>
+        <Text style={styles.affiliateText}>
+          As an Amazon associate we may earn a commission from purchases.
+        </Text>
 
         {/* Show products if available */}
         {project.products.length > 0 && (
@@ -172,6 +175,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 16,
     gap: 8,
+  },
+  affiliateText: {
+    color: 'grey',
+    fontSize: 10.5,
+    justifyContent: 'center',
   },
   searchingText: {
     fontSize: 16,
