@@ -26,7 +26,11 @@ export default function AppLayout() {
   };
 
   const handleOverLimit = () => {
-    showToast({ message: 'Looks like you’ve hit your project limit for now.', type: 'info' });
+    showToast({
+      message:
+        'You’ve used all available image generations. We’ll be increasing limits soon, and you’ll also be able to purchase more images.',
+      type: 'info',
+    });
   };
 
   return (
