@@ -7,10 +7,14 @@ import Colors from '@/src/constants/Colors';
 import ProjectsIcon from '@/src/components/icons/ProjectsIcon';
 import ProductsIcon from '@/src/components/icons/ProductsIcon';
 import SettingsIcon from '@/src/components/icons/SettingsIcon';
+import { useUser } from '@/src/lib/utils/UserContext';
+import { useToast } from '@/src/lib/utils/ToastContext';
 
 export default function AppLayout() {
   const { isSignedIn } = useAuth();
   const router = useRouter();
+  const userCtx = useUser();
+  const { showToast } = useToast();
 
   // Everything under (app) requires auth
   if (!isSignedIn) {
@@ -19,6 +23,10 @@ export default function AppLayout() {
 
   const handleCreateProject = () => {
     router.push('/(tabs)/(projects)/new');
+  };
+
+  const handleOverLimit = () => {
+    showToast({ message: 'You have exceeded the limit!!!', type: 'info' });
   };
 
   return (
@@ -36,7 +44,7 @@ export default function AppLayout() {
           headerShown: true,
           headerRight: () => (
             <TouchableOpacity
-              onPress={handleCreateProject}
+              onPress={userCtx.isOverLimit ? handleOverLimit : handleCreateProject}
               style={{
                 backgroundColor: Colors.primary,
                 width: 32,

@@ -14,12 +14,17 @@ import { GetProjectsResponse } from '@/src/types/api';
 import { SignedIn } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/src/constants/Colors';
+import { useState, useEffect } from 'react';
+import { PROJECT_LIMITS, useUser } from '@/src/lib/utils/UserContext';
 
 type Project = NonNullable<GetProjectsResponse['projects']>[0];
 
 /** This page lists all your projects and lets you create a new one */
 export default function ProjectListPage() {
   const router = useRouter();
+  const userCtx = useUser();
+
+  const [isOverLimit, setIsOverLimit] = useState(false);
 
   const { data, isLoading, error } = useApiQuery<GetProjectsResponse>('/api/get-projects', {
     withAuth: true,
@@ -28,6 +33,7 @@ export default function ProjectListPage() {
   useFocusRefetch();
 
   const projects = data?.projects || [];
+  userCtx.setIsOverLimit(projects.length > PROJECT_LIMITS[userCtx.userType]);
 
   const renderProject: ListRenderItem<Project> = ({ item: project }) => (
     <TouchableOpacity

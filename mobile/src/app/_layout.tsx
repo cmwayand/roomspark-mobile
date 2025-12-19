@@ -5,6 +5,8 @@ import Constants from 'expo-constants';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/src/lib/api/queryClient';
+import { UserProvider } from '../lib/utils/UserContext';
+import { ToastProvider } from '../lib/utils/ToastContext';
 
 export default function RootLayout() {
   const publishableKey = Constants.expoConfig?.extra?.clerkPublishableKey;
@@ -19,7 +21,11 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
         <QueryClientProvider client={queryClient}>
-          <Slot />
+          <UserProvider>
+            <ToastProvider>
+              <Slot />
+            </ToastProvider>
+          </UserProvider>
         </QueryClientProvider>
       </ClerkProvider>
     </SafeAreaProvider>
