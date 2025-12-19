@@ -24,8 +24,6 @@ export default function ProjectListPage() {
   const router = useRouter();
   const userCtx = useUser();
 
-  const [isOverLimit, setIsOverLimit] = useState(false);
-
   const { data, isLoading, error } = useApiQuery<GetProjectsResponse>('/api/get-projects', {
     withAuth: true,
   });
@@ -33,6 +31,7 @@ export default function ProjectListPage() {
   useFocusRefetch();
 
   const projects = data?.projects || [];
+  //change project limit >=
   userCtx.setIsOverLimit(projects.length >= PROJECT_LIMITS[userCtx.userType]);
 
   const renderProject: ListRenderItem<Project> = ({ item: project }) => (
