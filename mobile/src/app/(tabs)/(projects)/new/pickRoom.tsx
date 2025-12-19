@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useNewProjectStore } from '@/src/lib/state/newProjectStore';
 import { RoomType } from '@roomspark/shared';
+import { RoomUsage } from '@roomspark/shared';
 
 const STYLE_LABELS: Record<RoomType, string> = {
   [RoomType.MID_CENTURY_MODERN]: 'Mid Century',
@@ -31,7 +32,7 @@ export default function PickRoomPage() {
 
   const styleLabel = style ? STYLE_LABELS[style] : '';
 
-  const handleSelectRoom = (room: 'kitchen' | 'living_room') => {
+  const handleSelectRoom = (room: 'bedroom' | 'living_room' | 'office') => {
     setRoomType(room);
 
     router.push({
@@ -58,15 +59,25 @@ export default function PickRoomPage() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Choose type of room</Text>
         <View style={styles.roomButtons}>
-          <TouchableOpacity style={styles.roomButton} onPress={() => handleSelectRoom('kitchen')}>
+          <TouchableOpacity
+            style={styles.roomButton}
+            onPress={() => handleSelectRoom('bedroom' as RoomUsage)}
+          >
             <Text style={styles.roomButtonText}>Bedroom</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.roomButton}
-            onPress={() => handleSelectRoom('living_room')}
+            onPress={() => handleSelectRoom('living_room' as RoomUsage)}
           >
             <Text style={styles.roomButtonText}>Living room</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.roomButton}
+            onPress={() => handleSelectRoom('office' as RoomUsage)}
+          >
+            <Text style={styles.roomButtonText}>Office</Text>
           </TouchableOpacity>
         </View>
       </View>
