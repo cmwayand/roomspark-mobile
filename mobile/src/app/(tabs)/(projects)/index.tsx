@@ -33,7 +33,7 @@ export default function ProjectListPage() {
   useFocusRefetch();
 
   const projects = data?.projects || [];
-  userCtx.setIsOverLimit(projects.length > PROJECT_LIMITS[userCtx.userType]);
+  userCtx.setIsOverLimit(projects.length >= PROJECT_LIMITS[userCtx.userType]);
 
   const renderProject: ListRenderItem<Project> = ({ item: project }) => (
     <TouchableOpacity
